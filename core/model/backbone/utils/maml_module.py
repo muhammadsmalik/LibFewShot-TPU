@@ -107,7 +107,7 @@ class Conv2d_fw(nn.Conv2d):  # used in MAML to forward input with fast weight
 #             )
 #         return out
 
-from torch_xla.core.xla_model import xm
+import torch_xla.core.xla_model as xm
 
 class BatchNorm2d_fw(nn.BatchNorm2d):  # used in MAML to forward input with fast weight
     def __init__(self, num_features):
