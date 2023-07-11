@@ -13,7 +13,7 @@ import core.model as arch
 from core.data import get_dataloader
 from core.utils import (
     init_logger_config,
-    prepare_device,
+    # prepare_device,
     init_seed,
     create_dirs,
     AverageMeter,
