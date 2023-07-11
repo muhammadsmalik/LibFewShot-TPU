@@ -11,6 +11,9 @@ import yaml
 from torch import nn
 import torch.distributed as dist
 
+import torch
+import torch_xla.core.xla_model as xm
+
 from queue import Queue
 import core.model as arch
 from core.data import get_dataloader
@@ -576,18 +579,22 @@ class Trainer(object):
             tuple: A tuple of deviceand list_ids.
         """
         init_seed(config["seed"], config["deterministic"])
-        device, list_ids = prepare_device(
-            rank,
-            config["device_ids"],
-            config["n_gpu"],
-            backend="nccl"
-            if "dist_backend" not in self.config
-            else self.config["dist_backend"],
-            dist_url="tcp://127.0.0.1:" + str(config["port"])
-            if "dist_url" not in self.config
-            else self.config["dist_url"],
-        )
-        torch.cuda.set_device(self.rank)
+        # device, list_ids = prepare_device(
+        #     rank,
+        #     config["device_ids"],
+        #     config["n_gpu"],
+        #     backend="nccl"
+        #     if "dist_backend" not in self.config
+        #     else self.config["dist_backend"],
+        #     dist_url="tcp://127.0.0.1:" + str(config["port"])
+        #     if "dist_url" not in self.config
+        #     else self.config["dist_url"],
+        # )
+        # torch.cuda.set_device(self.rank)
+
+        device = xm.xla_device()
+
+        list_ids = [rank]
 
         return device, list_ids
 

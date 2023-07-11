@@ -172,36 +172,36 @@ def create_dirs(dir_paths):
             os.mkdir(dir_path)
 
 
-def prepare_device(rank, device_ids, n_gpu_use, backend, dist_url):
-    """
+# def prepare_device(rank, device_ids, n_gpu_use, backend, dist_url):
+#     """
 
-    :param n_gpu_use:
-    :return:
-    """
-    if n_gpu_use > 1:
-        dist.init_process_group(
-            backend=backend, init_method=dist_url, world_size=n_gpu_use, rank=rank
-        )
-        dist.barrier()
+#     :param n_gpu_use:
+#     :return:
+#     """
+#     if n_gpu_use > 1:
+#         dist.init_process_group(
+#             backend=backend, init_method=dist_url, world_size=n_gpu_use, rank=rank
+#         )
+#         dist.barrier()
 
-    os.environ["CUDA_VISIBLE_DEVICES"] = str(device_ids)
+#     os.environ["CUDA_VISIBLE_DEVICES"] = str(device_ids)
 
-    n_gpu = torch.cuda.device_count()
-    if n_gpu_use > 0 and n_gpu == 0:
-        print("the model will be performed on CPU.")
-        n_gpu_use = 0
+#     n_gpu = torch.cuda.device_count()
+#     if n_gpu_use > 0 and n_gpu == 0:
+#         print("the model will be performed on CPU.")
+#         n_gpu_use = 0
 
-    if n_gpu_use > n_gpu:
-        print(
-            "only {} are available on this machine, "
-            "but the number of the GPU in config is {}.".format(n_gpu, n_gpu_use)
-        )
-        n_gpu_use = n_gpu
+#     if n_gpu_use > n_gpu:
+#         print(
+#             "only {} are available on this machine, "
+#             "but the number of the GPU in config is {}.".format(n_gpu, n_gpu_use)
+#         )
+#         n_gpu_use = n_gpu
 
-    device = torch.device("cuda:{}".format(rank) if n_gpu_use > 0 else "cpu")
-    list_ids = list(range(n_gpu_use))
+#     device = torch.device("cuda:{}".format(rank) if n_gpu_use > 0 else "cpu")
+#     list_ids = list(range(n_gpu_use))
 
-    return device, list_ids
+#     return device, list_ids
 
 
 def save_model(
