@@ -478,7 +478,9 @@ class Trainer(object):
 
             return model, model.module.model_type
         else:
-            model = model.to(self.rank)
+            # model = model.to(self.rank)
+            device = xm.xla_device() # not sure about this one
+            model = model.to(device)
 
             return model, model.model_type
 
