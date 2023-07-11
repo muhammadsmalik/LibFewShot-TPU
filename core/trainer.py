@@ -475,6 +475,7 @@ class Trainer(object):
                 output_device=self.rank,
                 find_unused_parameters=True,
             )
+            print("USING RISKY DISTRIBUTED DATA PARALLEL")
 
             return model, model.module.model_type
         else:

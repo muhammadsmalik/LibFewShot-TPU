@@ -75,15 +75,50 @@ class Conv2d_fw(nn.Conv2d):  # used in MAML to forward input with fast weight
 
 
 # FIXME add complete parameter support
+# class BatchNorm2d_fw(nn.BatchNorm2d):  # used in MAML to forward input with fast weight
+#     def __init__(self, num_features):
+#         super(BatchNorm2d_fw, self).__init__(num_features)
+#         self.weight.fast = None
+#         self.bias.fast = None
+
+#     def forward(self, x):
+#         running_mean = torch.zeros(x.data.size()[1]).cuda()
+#         running_var = torch.ones(x.data.size()[1]).cuda()
+#         if self.weight.fast is not None and self.bias.fast is not None:
+#             out = F.batch_norm(
+#                 x,
+#                 running_mean,
+#                 running_var,
+#                 self.weight.fast,
+#                 self.bias.fast,
+#                 training=True,
+#                 momentum=1,
+#             )
+#             # batch_norm momentum hack: follow hack of Kate Rakelly in pytorch-maml/src/layers.py
+#         else:
+#             out = F.batch_norm(
+#                 x,
+#                 running_mean,
+#                 running_var,
+#                 self.weight,
+#                 self.bias,
+#                 training=True,
+#                 momentum=1,
+#             )
+#         return out
+
+from torch_xla.core.xla_model import xm
+
 class BatchNorm2d_fw(nn.BatchNorm2d):  # used in MAML to forward input with fast weight
     def __init__(self, num_features):
         super(BatchNorm2d_fw, self).__init__(num_features)
         self.weight.fast = None
         self.bias.fast = None
+        self.device = xm.xla_device()  # get a reference to the TPU core
 
     def forward(self, x):
-        running_mean = torch.zeros(x.data.size()[1]).cuda()
-        running_var = torch.ones(x.data.size()[1]).cuda()
+        running_mean = torch.zeros(x.data.size()[1]).to(self.device)  # move tensor to TPU core
+        running_var = torch.ones(x.data.size()[1]).to(self.device)  # move tensor to TPU core
         if self.weight.fast is not None and self.bias.fast is not None:
             out = F.batch_norm(
                 x,
@@ -106,6 +141,7 @@ class BatchNorm2d_fw(nn.BatchNorm2d):  # used in MAML to forward input with fast
                 momentum=1,
             )
         return out
+
 
 
 def convert_maml_module(module):
